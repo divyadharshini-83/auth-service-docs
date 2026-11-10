@@ -57,4 +57,22 @@ modest-nobel/
 └── tests/
     └── auth.test.js              # Comprehensive Jest/Supertest suite covering Section 10 test cases
 ```
+
+### Security Implementation Details
+
+- **Cryptographically Secure OTP**: Generated using `crypto.randomInt(100000, 1000000)` to prevent pseudorandom predictability.
+- **OTP Hashing**: Never stored in plain text. Hashed with HMAC-SHA256 with an independent server-side pepper secret (`OTP_SECRET`).
+- **Constant-Time Verification**: Verification utilizes `crypto.timingSafeEqual` to safeguard against timing attacks.
+- **Single-Use Enforcement**: Once verified, `is_used` is set to `true`, preventing replay attacks.
+- **Short Lifetime**: OTPs expire strictly after 5 minutes (`OTP_EXPIRY_MINUTES=5`).
+- **Attempt Tracking & Lockout**: Maximum 5 attempts (`OTP_MAX_ATTEMPTS=5`). Reaching the limit permanently invalidates the challenge.
+- **Resend Cooldown**: Enforces a 60-second cooldown (`OTP_COOLDOWN_SECONDS=60`) between OTP generations.
+- **Password Hashing**: `bcryptjs` with 12 salt rounds.
+- **HTTP-Only Cookies & Bearer Tokens**: Session tokens are issued via HTTP-only, SameSite Secure cookies, with support for `Authorization: Bearer <token>` for API clients.
+- **Data Leak Prevention**: Passwords, hashes, OTPs, and internal stack traces are stripped and never returned to the frontend.
+- **Rate Limiting**:
+  - Global API: 100 requests / 15 minutes
+  - Auth (Registration & Login): 15 requests / 15 minutes
+  - OTP (Send & Verify): 10 requests / 15 minutes
+
 ---
