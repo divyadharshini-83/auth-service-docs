@@ -76,3 +76,38 @@ modest-nobel/
   - OTP (Send & Verify): 10 requests / 15 minutes
 
 ---
+
+
+## 4. Interface & Contracts
+
+Compliant with **Section 11 API Response Standards**:
+
+### Standard Success Response:
+```json
+{
+  "success": true,
+  "message": "OTP verification successful",
+  "data": { ... }
+}
+```
+
+### Standard Validation Error Response:
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "email": "Please enter a valid email address"
+  }
+}
+```
+
+### Standard Failure Response:
+```json
+{
+  "success": false,
+  "message": "Invalid mobile number or password"
+}
+```
+
+---
