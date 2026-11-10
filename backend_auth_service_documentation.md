@@ -58,6 +58,36 @@ modest-nobel/
     └── auth.test.js              # Comprehensive Jest/Supertest suite covering Section 10 test cases
 ```
 
+
+### Database Design
+
+Compliant with **Section 3** of the Specification.
+
+#### `users` Schema / Table
+| Column / Field | Type | Attributes | Description |
+|---|---|---|---|
+| `id` / `_id` | UUID / ObjectId | Primary Key | Unique user identifier |
+| `first_name` | VARCHAR(50) / String | NOT NULL, trimmed | User first name |
+| `last_name` | VARCHAR(50) / String | NOT NULL, trimmed | User last name |
+| `mobile` | VARCHAR(20) / String | NOT NULL, UNIQUE, Indexed | 10-digit mobile number |
+| `email` | VARCHAR(255) / String | NOT NULL, UNIQUE, Indexed | Unique email address |
+| `password_hash` | VARCHAR(255) / String | NOT NULL | Salted bcrypt hash |
+| `is_verified` | BOOLEAN / Boolean | DEFAULT FALSE | Verified status |
+| `created_at` | TIMESTAMP / Date | DEFAULT CURRENT_TIMESTAMP | Creation timestamp |
+| `updated_at` | TIMESTAMP / Date | DEFAULT CURRENT_TIMESTAMP | Modification timestamp |
+
+#### `otp_verifications` Schema / Table
+| Column / Field | Type | Attributes | Description |
+|---|---|---|---|
+| `id` / `_id` | UUID / ObjectId | Primary Key | Unique OTP challenge identifier |
+| `user_id` | UUID / ObjectId | NOT NULL, Foreign Key &rarr; users.id | Associated user |
+| `otp_hash` | VARCHAR(255) / String | NOT NULL | HMAC-SHA256 hash with pepper |
+| `expires_at` | TIMESTAMP / Date | NOT NULL, Indexed | OTP expiry (5 minutes) |
+| `attempt_count` | INT / Number | DEFAULT 0 | Count of verification attempts |
+| `is_used` | BOOLEAN / Boolean | DEFAULT FALSE, Indexed | Single-use flag |
+| `created_at` | TIMESTAMP / Date | DEFAULT CURRENT_TIMESTAMP | Creation timestamp |
+
+> **Note**: For MySQL and PostgreSQL, run the provided [`schema.sql`](./schema.sql) file. For MongoDB, Mongoose auto-creates models and compound indexes upon application startup.
 ### Security Implementation Details
 
 - **Cryptographically Secure OTP**: Generated using `crypto.randomInt(100000, 1000000)` to prevent pseudorandom predictability.
